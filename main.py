@@ -87,3 +87,58 @@ while True:
                 "7. Logout\n"
                 "Pilihan (1/2/3/4/5/6/7)>> "
             )
+            if choose2 == "1":
+                search_usrname = input("Masukkan username yang ingin dicari: ")
+                found = False
+
+                for usr, pw in Akun:
+                    if search_usrname == usr:
+                        found = True
+                        break
+
+                if not found:
+                    print("Username tidak ditemukan.")
+                    input("Tekan Enter untuk kembali...")
+                    cls()
+                    continue
+
+                print("Username ditemukan.")
+                cls()
+
+                while True:
+                    choose_sub = input(
+                        f"1. Lihat Jadwal {search_usrname}\n"
+                        "2. Ajukan Jadwal Pertemuan\n"
+                        "3. Kembali\n"
+                        "Pilih (1/2/3)>> "
+                    )
+
+                    if choose_sub == "1":
+                        cls()
+                        for item in Schedule:
+                            usr, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, nama_pengaju = item
+                            if usr == search_usrname:
+                                print(
+                                    f"{hari}, {tanggal} {bulan} {tahun}. "
+                                    f"Jam: {jam_mulai}-{jam_selesai} (dengan {nama_pengaju})"
+                                )
+
+                        input("Tekan Enter untuk kembali...")
+                        cls()
+
+                    elif choose_sub == "2":
+                        hari = input("Masukkan hari: ")
+                        tanggal = input("Masukkan tanggal: ")
+                        bulan = input("Masukkan bulan: ")
+                        tahun = input("Masukkan tahun: ")
+                        jam_mulai = input("Masukkan jam mulai: ")
+                        jam_selesai = input("Masukkan jam selesai: ")
+
+                        notif = (search_usrname, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, usrname_login)
+                        Notif.append(notif)
+                        print("Pengajuan jadwal telah dikirim.")
+                        cls()
+
+                    elif choose_sub == "3":
+                        cls()
+                        break
