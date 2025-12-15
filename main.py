@@ -393,3 +393,22 @@ while True:
                     elif choose3 == "4":
                         cls()
                         break
+
+            elif choose2 == "6":
+                print("=== Riwayat Pertemuan Anda ===")
+                ada = False
+
+                for item in Riwayat:
+                    usr, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, pengaju = item
+                    if usr == usrname_login:
+                        print(
+                            f"{hari}, {tanggal} {bulan} {tahun} "
+                            f"Jam {jam_mulai}-{jam_selesai} (dengan {pengaju})"
+                        )
+                        ada = True
+
+                if not ada:
+                    print("Belum ada riwayat pertemuan.")
+
+                input("Tekan Enter untuk kembali...")
+                cls()
