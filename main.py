@@ -533,3 +533,19 @@ while True:
                     else:
                         cls()
                         break
+            elif choose2 == "7":
+                print("Logout berhasil.")
+                time.sleep(1)
+                os.system('cls')
+                break
+
+            else:
+                print("Pilihan tidak tersedia.")
+                cls()
+    elif chooseStart == "3":
+        print("Terima kasih telah menggunakan Comeet!")
+        break
+
+    else:
+        print("Pilihan tidak tersedia.")
+        cls()
