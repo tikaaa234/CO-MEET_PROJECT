@@ -3,6 +3,10 @@ import time
 import csv
 
 Akun = []
+KreditScore = 100
+Schedule = []
+Notif = []
+
 CSV_AKUN = "akun.csv"
 def load_csv_akun():
     if not os.path.exists(CSV_AKUN):
@@ -142,3 +146,8 @@ while True:
                     elif choose_sub == "3":
                         cls()
                         break
+                    
+            elif choose2 == "4":
+                print(f"Kredit Score Anda: {KreditScore}")
+                input("Tekan Enter untuk kembali...")
+                cls()
