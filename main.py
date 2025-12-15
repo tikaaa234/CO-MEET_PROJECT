@@ -412,3 +412,124 @@ while True:
 
                 input("Tekan Enter untuk kembali...")
                 cls()
+
+            elif choose2 == "5":
+                while True:
+                    choose_notif = input(
+                        "1. Terima/Tolak Pengajuan\n"
+                        "2. Kembali\n"
+                        "Pilih (1/2)>> "
+                    )
+
+                    if choose_notif == "1":
+                        ada = False
+                        for item in Notif:
+                            usr, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, pengaju = item
+                            if usr == usrname_login:
+                                print(
+                                    f"{hari}, {tanggal} {bulan} {tahun}. "
+                                    f"Jam {jam_mulai}-{jam_selesai} diajukan oleh {pengaju}"
+                                )
+                                ada = True
+
+                        if not ada:
+                            print("Tidak ada notifikasi.")
+
+                        choose_accept = input(
+                            "1. Terima\n"
+                            "2. Tolak\n"
+                            "3. Kembali\n"
+                            "Pilih (1/2/3)>> "
+                        )
+
+                        if choose_accept == "1":
+                            data = input("Masukkan hari,tanggal,bulan,nama pengaju: ").split(",")
+                            data = [x.strip() for x in data]
+
+                            found = False
+                            # iterate over a copy to allow safe removal
+                            for item in list(Notif):
+                                usr, hari_n, tanggal_n, bulan_n, tahun_n, jam_mulai_n, jam_selesai_n, pengaju_n = item
+
+                                if (
+                                    usr == usrname_login
+                                    and hari_n == data[0]
+                                    and tanggal_n == data[1]
+                                    and bulan_n == data[2]
+                                    and pengaju_n == data[3]
+                                ):
+                                    # tambahkan jadwal untuk pihak yang diaju (item apa adanya)
+                                    Schedule.append(item)
+                                    save_csv_schedule(item)
+
+                                    # buat salinan jadwal untuk pihak pengaju (balik posisi)
+                                    salinan = (
+                                        pengaju_n,      # pemilik = pengaju
+                                        hari_n,
+                                        tanggal_n,
+                                        bulan_n,
+                                        tahun_n,
+                                        jam_mulai_n,
+                                        jam_selesai_n,
+                                        usr            # partner = yang diaju (usr)
+                                    )
+                                    Schedule.append(salinan)
+                                    save_csv_schedule(salinan)
+
+                                    # hapus notifikasi
+                                    Notif.remove(item)
+                                    # tulis ulang file notifikasi agar konsisten
+                                    # (kita bisa tulis ulang dari list Notif)
+                                    with open("notif.csv", "w", newline="") as f:
+                                        w = csv.writer(f)
+                                        for row in Notif:
+                                            w.writerow(row)
+
+                                    print("Pengajuan jadwal diterima. Jadwal telah ditambahkan untuk kedua pihak.")
+                                    found = True
+                                    break
+
+                            if not found:
+                                print("Pengajuan tidak ditemukan.")
+
+                            input("Tekan Enter untuk kembali...")
+                            cls()
+
+                        elif choose_accept == "2":
+                            data = input("Masukkan hari,tanggal,bulan,nama pengaju: ").split(",")
+                            data = [x.strip() for x in data]
+
+                            found = False
+                            for item in list(Notif):
+                                usr, hari_n, tanggal_n, bulan_n, tahun_n, jam_mulai_n, jam_selesai_n, pengaju_n = item
+
+                                if (
+                                    usr == usrname_login
+                                    and hari_n == data[0]
+                                    and tanggal_n == data[1]
+                                    and bulan_n == data[2]
+                                    and pengaju_n == data[3]
+                                ):
+                                    Notif.remove(item)
+                                    # update file notifikasi
+                                    with open("notif.csv", "w", newline="") as f:
+                                        w = csv.writer(f)
+                                        for row in Notif:
+                                            w.writerow(row)
+                                    print("Pengajuan jadwal ditolak.")
+                                    found = True
+                                    break
+
+                            if not found:
+                                print("Pengajuan tidak ditemukan.")
+
+                            input("Tekan Enter untuk kembali...")
+                            cls()
+
+                        else:
+                            cls()
+                            break
+
+                    else:
+                        cls()
+                        break
