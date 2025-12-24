@@ -410,12 +410,7 @@ while True:
                     )
 
                     if choose3 == "1":
-                        hari = input("Masukkan hari: ")
-                        tanggal = input("Masukkan tanggal: ")
-                        bulan = input("Masukkan bulan: ")
-                        tahun = input("Masukkan tahun: ")
-                        jam_mulai = input("Masukkan jam mulai: ")
-                        jam_selesai = input("Masukkan jam selesai: ")
+                        hari, tanggal, bulan, tahun, jam_mulai, jam_selesai = input_jadwal()
 
                         data = (usrname_login, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, "Pribadi")
                         Schedule.append(data)
