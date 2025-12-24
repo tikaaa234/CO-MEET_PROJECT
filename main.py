@@ -1,18 +1,21 @@
+#CO-Meet
+
 import os
 import time
 import csv
 
-Akun = []
 KreditScore = 100
 Schedule = []
+Akun = []
 Notif = []
 Riwayat = []
-
 
 CSV_AKUN = "akun.csv"
 CSV_SCHEDULE = "schedule.csv"
 CSV_RIWAYAT = "riwayat.csv"
 
+
+# ===================== CSV =========================
 def load_csv_akun():
     if not os.path.exists(CSV_AKUN):
         return
@@ -20,48 +23,26 @@ def load_csv_akun():
     with open(CSV_AKUN, "r", newline="") as file:
         reader = csv.reader(file)
         for row in reader:
-            if len(row) == 2:
-                Akun.append((row[0], row[1]))
+            if len(row) == 3:
+                Akun.append((row[0], row[1], row[2]))
 
 
-def save_csv_akun(username, password):
+def save_csv_akun(username, password, em):
     with open(CSV_AKUN, "a", newline="") as file:
         writer = csv.writer(file)
-        writer.writerow([username, password])
-
-def cls():
-    time.sleep(1)
-    os.system('cls')
+        writer.writerow([username, password, em])
 
 
-def Register():
-    input("Masukkan Email: ")  
-    usrname_signup = input("Masukkan Username: ")
-    pass_signup = input("Masukkan Password: ")
-    signup = (usrname_signup, pass_signup)
+def load_csv_schedule():
+    if not os.path.exists(CSV_SCHEDULE):
+        return
 
-    Akun.append(signup)
-    save_csv_akun(usrname_signup, pass_signup)
+    with open(CSV_SCHEDULE, "r", newline="") as file:
+        reader = csv.reader(file)
+        for row in reader:
+            if len(row) == 8:
+                Schedule.append(tuple(row))
 
-    print("Registrasi berhasil! Akun telah tersimpan permanen.")
-    cls()
-
-
-def Login():
-    usrname_login = input("Masukkan Username: ")
-    pass_login = input("Masukkan Password: ")
-    login = (usrname_login, pass_login)
-
-    if login in Akun:
-        print("Login berhasil.")
-        time.sleep(1)
-        os.system('cls')
-        return usrname_login
-    else:
-        print("Login gagal. Username atau password salah.")
-        return None
-
-load_csv_akun()
 
 def save_csv_schedule(item):
     with open(CSV_SCHEDULE, "a", newline="") as file:
@@ -74,6 +55,7 @@ def rewrite_csv_schedule():
         writer = csv.writer(file)
         for item in Schedule:
             writer.writerow(item)
+
 
 def load_csv_riwayat():
     if not os.path.exists(CSV_RIWAYAT):
@@ -91,6 +73,229 @@ def save_csv_riwayat(item):
         writer = csv.writer(file)
         writer.writerow(item)
 
+def input_jadwal():
+    while True:
+        os.system('cls')
+
+        salah = False
+
+        data = input("Hari & Tanggal (Senin 12/9/2025): ").strip()
+        jam = input("Jam (08-10): ").strip()
+
+        if data == "" or jam == "":
+            salah = True
+
+        if not salah:
+            pisah = data.split()
+            if len(pisah) != 2:
+                salah = True
+
+        if not salah:
+            hari = pisah[0]
+            tanggal = pisah[1]
+
+            pisah_tgl = tanggal.split("/")
+            if len(pisah_tgl) != 3:
+                salah = True
+
+        if not salah:
+            tgl, bulan, tahun = pisah_tgl
+
+            pisah_jam = jam.split("-")
+            if len(pisah_jam) != 2:
+                salah = True
+
+        if not salah:
+            jam_mulai, jam_selesai = pisah_jam
+
+            if (
+                not hari.isalpha()
+                or not (tgl.isdigit() and bulan.isdigit() and tahun.isdigit())
+                or not (jam_mulai.isdigit() and jam_selesai.isdigit())
+                or not (1 <= int(tgl) <= 31 and 1 <= int(bulan) <= 12)
+                or not (0 <= int(jam_mulai) < int(jam_selesai) <= 24)
+            ):
+                salah = True
+
+        if salah:
+            print("Format belum benar. Tolong isi sesuai contoh.")
+            time.sleep(1)
+            continue
+
+        return hari, tanggal, bulan, tahun, jam_mulai, jam_selesai
+
+# =====================================================
+
+
+def cls():
+    time.sleep(1)
+    os.system('cls')
+
+
+def Register():
+    while True: 
+        email = input("Masukkan Email: ").strip()
+        usrname_signup = input("Masukkan Username: ").strip()
+        pass_signup = input("Masukkan Password: ").strip()
+        if email == "" or usrname_signup == "" or pass_signup == "":
+            print("Harap isi data dengan benar! Silahkan isi kembali")
+            cls()
+            break
+        elif usrname_signup == pass_signup:
+            print("Username tidak boleh sama dengan password! Silahkan isi kembali")
+            cls()
+            break
+        
+        email_terpakai = False
+        username_signup_terpakai = False
+
+        for usr, pw, gmail in Akun:
+            if gmail == email:
+                email_terpakai = True
+                break
+            elif usr == usrname_signup:
+                username_signup_terpakai = True
+                break
+        
+        if email_terpakai:
+            print("Email sudah terpakai! Silahkan isi kembali")
+            cls()
+            break
+
+        elif username_signup_terpakai:
+            print("Username sudah terpakai! Silahkan isi kembali")
+            cls()
+            break
+
+        signup = (usrname_signup, pass_signup, email)
+
+        Akun.append(signup)
+        save_csv_akun(usrname_signup, pass_signup, email)
+
+        print("Registrasi berhasil! Akun telah tersimpan permanen.")
+        cls()
+        break
+
+
+def Login():
+    usrname_login = input("Masukkan Username: ")
+    pass_login = input("Masukkan Password: ")
+    for usr, pw, gmail in Akun:
+        if usr == usrname_login and pw == pass_login:
+            print("Login berhasil.")
+            time.sleep(1)
+            os.system('cls')
+            return usrname_login
+    
+    print("Login gagal. Username atau password salah.")
+    return None
+
+def tampilkan_notif_user(Notif, usrname_login):
+    daftar = []
+
+    for item in Notif:
+        usr, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, pengaju = item
+        if usr == usrname_login:
+            daftar.append(item)
+
+    if not daftar:
+        print("Tidak ada notifikasi.")
+        input("Tekan Enter untuk kembali...")
+        return None
+
+    print("\nDaftar notifikasi:")
+    for i, item in enumerate(daftar, start=1):
+        _, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, pengaju = item
+        print(
+            f"{i}. {hari}, {tanggal} | "
+            f"Jam {jam_mulai}-{jam_selesai} | dari {pengaju}"
+        )
+
+    return daftar
+
+
+def tampilkan_notifikasi(Notif, usrname_login):
+    daftar = []
+    no = 1
+
+    for item in Notif:
+        usr, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, pengaju = item
+        if usr == usrname_login:
+            print(
+                f"{no}. {hari}, {tanggal}| "
+                f"Jam {jam_mulai}-{jam_selesai} | dari {pengaju}"
+            )
+            daftar.append(item)
+            no += 1
+
+    return daftar
+
+def proses_notifikasi(index, daftar, Notif, Schedule):
+    item = daftar[index]
+
+    usr, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, pengaju = item
+
+    print("\n1. Terima\n2. Tolak\n3. Kembali")
+    pilih = input("Pilih (1/2/3)>> ")
+
+    if pilih == "1":
+        # jadwal untuk penerima
+        data_penerima = (
+            usr,
+            hari,
+            tanggal,
+            bulan,
+            tahun,
+            jam_mulai,
+            jam_selesai,
+            pengaju
+        )
+        Schedule.append(data_penerima)
+        save_csv_schedule(data_penerima)
+
+        # jadwal untuk pengaju (dibalik)
+        data_pengaju = (
+            pengaju,
+            hari,
+            tanggal,
+            bulan,
+            tahun,
+            jam_mulai,
+            jam_selesai,
+            usr
+        )
+        Schedule.append(data_pengaju)
+        save_csv_schedule(data_pengaju)
+
+        Notif.remove(item)
+        simpan_notif_csv(Notif)
+
+        print("Pengajuan diterima.")
+
+    elif pilih == "2":
+        Notif.remove(item)
+        simpan_notif_csv(Notif)
+        print("Pengajuan ditolak.")
+
+    else:
+        return
+
+
+def simpan_notif_csv(Notif):
+    with open("notif.csv", "w", newline="") as f:
+        w = csv.writer(f)
+        for row in Notif:
+            w.writerow(row)
+
+
+# ==================== LOAD CSV DI AWAL ====================
+load_csv_akun()
+load_csv_schedule()
+load_csv_riwayat()
+# ==========================================================
+
+
+# ==================== MENU REGISTER / LOGIN ====================
 while True:
     print("===== SELAMAT DATANG DI COMEET =====")
     chooseStart = input(
@@ -111,6 +316,7 @@ while True:
 
         cls()
 
+        # ================= MASUK KE MENU UTAMA SETELAH LOGIN =================
         while True:
             print("===== MENU UTAMA COMEET =====")
             choose2 = input(
@@ -124,11 +330,13 @@ while True:
                 "7. Logout\n"
                 "Pilihan (1/2/3/4/5/6/7)>> "
             )
+
+            # =================== 1. SEARCH USERNAME ===================
             if choose2 == "1":
                 search_usrname = input("Masukkan username yang ingin dicari: ")
                 found = False
 
-                for usr, pw in Akun:
+                for usr, pw, email in Akun:
                     if search_usrname == usr:
                         found = True
                         break
@@ -153,33 +361,42 @@ while True:
                     if choose_sub == "1":
                         cls()
                         for item in Schedule:
-                            usr, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, nama_pengaju = item
+                            usr, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, pengaju = item
                             if usr == search_usrname:
                                 print(
-                                    f"{hari}, {tanggal} {bulan} {tahun}. "
-                                    f"Jam: {jam_mulai}-{jam_selesai} (dengan {nama_pengaju})"
+                                    f"{hari}, {tanggal}. "
+                                    f"Jam: {jam_mulai}-{jam_selesai} (dengan {pengaju})"
                                 )
 
                         input("Tekan Enter untuk kembali...")
                         cls()
 
                     elif choose_sub == "2":
-                        hari = input("Masukkan hari: ")
-                        tanggal = input("Masukkan tanggal: ")
-                        bulan = input("Masukkan bulan: ")
-                        tahun = input("Masukkan tahun: ")
-                        jam_mulai = input("Masukkan jam mulai: ")
-                        jam_selesai = input("Masukkan jam selesai: ")
+                        hari, tanggal, bulan, tahun, jam_mulai, jam_selesai = input_jadwal()
 
-                        notif = (search_usrname, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, usrname_login)
+                        notif = (
+                            search_usrname,
+                            hari,
+                            tanggal,
+                            bulan,
+                            tahun,
+                            jam_mulai,
+                            jam_selesai,
+                            usrname_login
+                        )
+
                         Notif.append(notif)
+
                         print("Pengajuan jadwal telah dikirim.")
+                        time.sleep(1)
                         cls()
+
 
                     elif choose_sub == "3":
                         cls()
                         break
-                    
+
+            # =================== 2. EDIT JADWAL PRIBADI ===================
             elif choose2 == "2":
                 cls()
                 while True:
@@ -255,6 +472,7 @@ while True:
                         cls()
                         break
 
+            # =================== 3. PERTEMUAN ===================
             elif choose2 == "3":
                 while True:
                     print("=== MENU PERTEMUAN ===")
@@ -324,11 +542,11 @@ while True:
                         usr, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, pengaju = detail_item
 
                         print("=== DETAIL PERTEMUAN ===")
-                        print(f"Partner: {usr}")
+                        print(f"Partner: {pengaju}")
                         print(f"Hari: {hari}")
-                        print(f"Tanggal: {tanggal} {bulan} {tahun}")
+                        print(f"Tanggal: {tanggal}")
                         print(f"Jam: {jam_mulai} - {jam_selesai}")
-                        print(f"Pengaju: {pengaju}")
+                   
 
                         while True:
                             choose_detail = input(
@@ -389,132 +607,42 @@ while True:
                         cls()
                         break
 
+            # =================== 4. CREDIT SCORE ===================
             elif choose2 == "4":
                 print(f"Kredit Score Anda: {KreditScore}")
                 input("Tekan Enter untuk kembali...")
                 cls()
 
+            # =================== 5. NOTIFIKASI ===================
             elif choose2 == "5":
                 while True:
-                    choose_notif = input(
-                        "1. Terima/Tolak Pengajuan\n"
-                        "2. Kembali\n"
-                        "Pilih (1/2)>> "
-                    )
+                    cls()
 
-                    if choose_notif == "1":
-                        ada = False
-                        for item in Notif:
-                            usr, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, pengaju = item
-                            if usr == usrname_login:
-                                print(
-                                    f"{hari}, {tanggal} {bulan} {tahun}. "
-                                    f"Jam {jam_mulai}-{jam_selesai} diajukan oleh {pengaju}"
-                                )
-                                ada = True
+                    daftar = tampilkan_notifikasi(Notif, usrname_login)
 
-                        if not ada:
-                            print("Tidak ada notifikasi.")
-
-                        choose_accept = input(
-                            "1. Terima\n"
-                            "2. Tolak\n"
-                            "3. Kembali\n"
-                            "Pilih (1/2/3)>> "
-                        )
-
-                        if choose_accept == "1":
-                            data = input("Masukkan hari,tanggal,bulan,nama pengaju: ").split(",")
-                            data = [x.strip() for x in data]
-
-                            found = False
-                            # iterate over a copy to allow safe removal
-                            for item in list(Notif):
-                                usr, hari_n, tanggal_n, bulan_n, tahun_n, jam_mulai_n, jam_selesai_n, pengaju_n = item
-
-                                if (
-                                    usr == usrname_login
-                                    and hari_n == data[0]
-                                    and tanggal_n == data[1]
-                                    and bulan_n == data[2]
-                                    and pengaju_n == data[3]
-                                ):
-                                    # tambahkan jadwal untuk pihak yang diaju (item apa adanya)
-                                    Schedule.append(item)
-                                    save_csv_schedule(item)
-
-                                    # buat salinan jadwal untuk pihak pengaju (balik posisi)
-                                    salinan = (
-                                        pengaju_n,      # pemilik = pengaju
-                                        hari_n,
-                                        tanggal_n,
-                                        bulan_n,
-                                        tahun_n,
-                                        jam_mulai_n,
-                                        jam_selesai_n,
-                                        usr            # partner = yang diaju (usr)
-                                    )
-                                    Schedule.append(salinan)
-                                    save_csv_schedule(salinan)
-
-                                    # hapus notifikasi
-                                    Notif.remove(item)
-                                    # tulis ulang file notifikasi agar konsisten
-                                    # (kita bisa tulis ulang dari list Notif)
-                                    with open("notif.csv", "w", newline="") as f:
-                                        w = csv.writer(f)
-                                        for row in Notif:
-                                            w.writerow(row)
-
-                                    print("Pengajuan jadwal diterima. Jadwal telah ditambahkan untuk kedua pihak.")
-                                    found = True
-                                    break
-
-                            if not found:
-                                print("Pengajuan tidak ditemukan.")
-
-                            input("Tekan Enter untuk kembali...")
-                            cls()
-
-                        elif choose_accept == "2":
-                            data = input("Masukkan hari,tanggal,bulan,nama pengaju: ").split(",")
-                            data = [x.strip() for x in data]
-
-                            found = False
-                            for item in list(Notif):
-                                usr, hari_n, tanggal_n, bulan_n, tahun_n, jam_mulai_n, jam_selesai_n, pengaju_n = item
-
-                                if (
-                                    usr == usrname_login
-                                    and hari_n == data[0]
-                                    and tanggal_n == data[1]
-                                    and bulan_n == data[2]
-                                    and pengaju_n == data[3]
-                                ):
-                                    Notif.remove(item)
-                                    # update file notifikasi
-                                    with open("notif.csv", "w", newline="") as f:
-                                        w = csv.writer(f)
-                                        for row in Notif:
-                                            w.writerow(row)
-                                    print("Pengajuan jadwal ditolak.")
-                                    found = True
-                                    break
-
-                            if not found:
-                                print("Pengajuan tidak ditemukan.")
-
-                            input("Tekan Enter untuk kembali...")
-                            cls()
-
-                        else:
-                            cls()
-                            break
-
-                    else:
-                        cls()
+                    if not daftar:
+                        print("Tidak ada notifikasi.")
+                        input("Tekan Enter untuk kembali...")
                         break
 
+                    pilih = input("\nPilih nomor notifikasi (0 untuk kembali)>> ")
+
+                    if pilih == "0":
+                        break
+
+                    if not pilih.isdigit():
+                        continue
+
+                    pilih = int(pilih)
+
+                    if 1 <= pilih <= len(daftar):
+                        proses_notifikasi(pilih - 1, daftar, Notif, Schedule)
+                        input("\nTekan Enter untuk lanjut...")
+                    else:
+                        continue
+
+
+            # =================== 6. RIWAYAT PERTEMUAN ===================
             elif choose2 == "6":
                 print("=== Riwayat Pertemuan Anda ===")
                 ada = False
@@ -533,6 +661,8 @@ while True:
 
                 input("Tekan Enter untuk kembali...")
                 cls()
+
+            # =================== 7. LOGOUT ===================
             elif choose2 == "7":
                 print("Logout berhasil.")
                 time.sleep(1)
@@ -542,6 +672,7 @@ while True:
             else:
                 print("Pilihan tidak tersedia.")
                 cls()
+
     elif chooseStart == "3":
         print("Terima kasih telah menggunakan Comeet!")
         break
