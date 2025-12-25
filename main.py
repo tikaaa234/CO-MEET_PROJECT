@@ -4,7 +4,7 @@ import os
 import time
 import csv
 
-KreditScore = 100
+KreditScore = []
 Schedule = []
 Akun = []
 Notif = []
@@ -13,6 +13,7 @@ Riwayat = []
 CSV_AKUN = "akun.csv"
 CSV_SCHEDULE = "schedule.csv"
 CSV_RIWAYAT = "riwayat.csv"
+CSV_KREDITSCORE = "kreditscore.csv"
 
 
 # ===================== CSV =========================
@@ -72,6 +73,21 @@ def save_csv_riwayat(item):
     with open(CSV_RIWAYAT, "a", newline="") as file:
         writer = csv.writer(file)
         writer.writerow(item)
+
+def load_csv_kreditscore():
+    if not os.path.exists(CSV_KREDITSCORE):
+        return
+    
+    with open (CSV_KREDITSCORE, "r", newline="") as file:
+        reader = csv.reader(file)
+        for row in reader:
+            if len(row) == 2:
+                KreditScore.append((row[0], row[1]))
+
+def save_csv_kreditscore(kreditscore, usrname):
+    with open(CSV_KREDITSCORE, "a", newline="") as file:
+        writer = csv.writer(file)
+        writer.writerow([kreditscore, usrname])
 
 def input_jadwal():
     while True:
@@ -171,6 +187,11 @@ def Register():
 
         Akun.append(signup)
         save_csv_akun(usrname_signup, pass_signup, email)
+
+        first_kreditscore = 100
+        kreditscore_sv = (first_kreditscore, usrname_signup)
+        KreditScore.append(kreditscore_sv)
+        save_csv_kreditscore(first_kreditscore, usrname_signup)
 
         print("Registrasi berhasil! Akun telah tersimpan permanen.")
         cls()
@@ -292,6 +313,7 @@ def simpan_notif_csv(Notif):
 load_csv_akun()
 load_csv_schedule()
 load_csv_riwayat()
+load_csv_kreditscore()
 # ==========================================================
 
 
@@ -469,6 +491,7 @@ while True:
 
             # =================== 3. PERTEMUAN ===================
             elif choose2 == "3":
+                cls()
                 while True:
                     print("=== MENU PERTEMUAN ===")
                     choose_meet = input(
@@ -604,9 +627,12 @@ while True:
 
             # =================== 4. CREDIT SCORE ===================
             elif choose2 == "4":
-                print(f"Kredit Score Anda: {KreditScore}")
-                input("Tekan Enter untuk kembali...")
-                cls()
+                for item in KreditScore:
+                    kreditscore, usr = item
+                    if usr == usrname_login:
+                        print(f"Kredit Score Anda: {kreditscore}")
+                        input("Tekan Enter untuk kembali...")
+                        cls()
 
             # =================== 5. NOTIFIKASI ===================
             elif choose2 == "5":
