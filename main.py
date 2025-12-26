@@ -135,7 +135,7 @@ def input_jadwal():
 
         if salah:
             print("Format belum benar. Tolong isi sesuai contoh.")
-            time.sleep(1)
+            cls()
             continue
 
         return hari, tanggal, bulan, tahun, jam_mulai, jam_selesai
@@ -204,8 +204,7 @@ def Login():
     for usr, pw, gmail in Akun:
         if usr == usrname_login and pw == pass_login:
             print("Login berhasil.")
-            time.sleep(1)
-            os.system('cls')
+            cls()
             return usrname_login
     
     print("Login gagal. Username atau password salah.")
@@ -308,6 +307,43 @@ def simpan_notif_csv(Notif):
         for row in Notif:
             w.writerow(row)
 
+def tampilkan_list_jadwal(Jadwal, usrname_login):
+    daftar = []
+    no = 1
+
+    for item in Jadwal:
+        usr, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, pengaju = item
+        if usr == usrname_login:
+            print(
+                f"{no}. {hari}, {tanggal}| "
+                f"Jam {jam_mulai}-{jam_selesai} | oleh {pengaju}"
+            )
+            daftar.append(item)
+            no += 1
+
+    return daftar
+
+def proses_hapus_jadwal(index, daftar, Schedule):
+    item = daftar[index]
+
+    print("\n1. Hapus\n2. Kembali")
+    pilih = input("Pilih (1/2)>> ")
+
+    if pilih == "1":
+        Schedule.remove(item)
+        simpan_jadwal_csv(Schedule)
+        print("Jadwal berhasil dihapus.")
+    else:
+        return
+
+    
+def simpan_jadwal_csv(schedule):
+    with open("schedule.csv", "w", newline="") as f:
+        w = csv.writer(f)
+        for row in schedule:
+            w.writerow(row)
+
+
 
 # ==================== LOAD CSV DI AWAL ====================
 load_csv_akun()
@@ -355,6 +391,7 @@ while True:
 
             # =================== 1. SEARCH USERNAME ===================
             if choose2 == "1":
+                cls()
                 search_usrname = input("Masukkan username yang ingin dicari: ")
                 found = False
 
@@ -394,6 +431,7 @@ while True:
                         cls()
 
                     elif choose_sub == "2":
+                        cls()
                         hari, tanggal, bulan, tahun, jam_mulai, jam_selesai = input_jadwal()
 
                         notif = (
@@ -408,9 +446,13 @@ while True:
                         )
 
                         Notif.append(notif)
+                        simpan_notif_csv(Notif)
 
                         print("Pengajuan jadwal telah dikirim.")
-                        time.sleep(1)
+                        cls()
+
+
+                        print("Pengajuan jadwal telah dikirim.")
                         cls()
 
 
@@ -432,54 +474,49 @@ while True:
                     )
 
                     if choose3 == "1":
+                        cls()
                         hari, tanggal, bulan, tahun, jam_mulai, jam_selesai = input_jadwal()
 
-                        data = (usrname_login, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, "Pribadi")
+                        data = (usrname_login, hari, tanggal, jam_mulai, jam_selesai, "Pribadi")
                         Schedule.append(data)
                         save_csv_schedule(data)
                         print("Jadwal berhasil ditambahkan.")
                         cls()
 
                     elif choose3 == "2":
-                        print("Daftar Jadwal Anda:")
-                        for item in Schedule:
-                            usr, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, pengaju = item
-                            if usr == usrname_login:
-                                print(
-                                    f"{hari}, {tanggal} {bulan} {tahun} "
-                                    f"Jam {jam_mulai}-{jam_selesai}"
-                                )
+                        while True:
+                            cls()
 
-                        hapus = input("Masukkan hari,tanggal,bulan yang ingin dihapus (pisahkan dengan koma): ").split(",")
-                        hapus = [x.strip() for x in hapus]
+                            daftar = tampilkan_list_jadwal(Schedule, usrname_login)
 
-                        found = False
-                        for item in Schedule:
-                            usr, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, pengaju = item
-                            if (
-                                usr == usrname_login
-                                and hari == hapus[0]
-                                and tanggal == hapus[1]
-                                and bulan == hapus[2]
-                            ):
-                                Schedule.remove(item)
-                                rewrite_csv_schedule()
-                                print("Jadwal berhasil dihapus.")
-                                found = True
+                            if not daftar:
+                                print("Jadwal Anda Kosong.")
+                                input("Tekan Enter untuk kembali...")
                                 break
 
-                        if not found:
-                            print("Jadwal tidak ditemukan.")
+                            pilih = input("Masukkan nomor jadwal yang ingin dihapus (0 untuk kembali): ")
+                            if pilih == "0":
+                                break
 
-                        cls()
+                            if not pilih.isdigit():
+                                continue
+
+                            pilih = int(pilih)
+
+                            if 1 <= pilih <= len(daftar):
+                                proses_hapus_jadwal(pilih - 1, daftar, Schedule)
+                                input("Tekan Enter untuk lanjut...")
+                            else:
+                                continue
 
                     elif choose3 == "3":
+                        cls()
                         print("Jadwal Anda:")
                         for item in Schedule:
                             usr, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, pengaju = item
                             if usr == usrname_login:
                                 print(
-                                    f"{hari}, {tanggal} {bulan} {tahun}. "
+                                    f"{hari}, {tanggal}. "
                                     f"Jam: {jam_mulai}-{jam_selesai} (dengan {pengaju})"
                                 )
                         input("Tekan Enter untuk kembali...")
@@ -627,6 +664,7 @@ while True:
 
             # =================== 4. CREDIT SCORE ===================
             elif choose2 == "4":
+                cls()
                 for item in KreditScore:
                     kreditscore, usr = item
                     if usr == usrname_login:
@@ -665,6 +703,7 @@ while True:
 
             # =================== 6. RIWAYAT PERTEMUAN ===================
             elif choose2 == "6":
+                cls()
                 print("=== Riwayat Pertemuan Anda ===")
                 ada = False
 
@@ -686,8 +725,7 @@ while True:
             # =================== 7. LOGOUT ===================
             elif choose2 == "7":
                 print("Logout berhasil.")
-                time.sleep(1)
-                os.system('cls')
+                cls()
                 break
 
             else:
