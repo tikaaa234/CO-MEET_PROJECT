@@ -14,6 +14,7 @@ CSV_AKUN = "akun.csv"
 CSV_SCHEDULE = "schedule.csv"
 CSV_RIWAYAT = "riwayat.csv"
 CSV_KREDITSCORE = "kreditscore.csv"
+CSV_NOTIF = "notif.csv"
 
 
 # ===================== CSV =========================
@@ -88,6 +89,22 @@ def save_csv_kreditscore(kreditscore, usrname):
     with open(CSV_KREDITSCORE, "a", newline="") as file:
         writer = csv.writer(file)
         writer.writerow([kreditscore, usrname])
+
+def rewrite_csv_kreditscore():
+    with open(CSV_KREDITSCORE, "w", newline="") as file:
+        writer = csv.writer(file)
+        for item in KreditScore:
+            writer.writerow(item)
+
+def load_csv_notif():
+    if not os.path.exists(CSV_NOTIF):
+        return
+    
+    with open (CSV_NOTIF, "r", newline="") as file:
+        reader = csv.reader(file)
+        for row in reader:
+            if len(row) == 8:
+                Notif.append(tuple(row))
 
 def input_jadwal():
     while True:
@@ -350,6 +367,7 @@ load_csv_akun()
 load_csv_schedule()
 load_csv_riwayat()
 load_csv_kreditscore()
+load_csv_notif()
 # ==========================================================
 
 
@@ -605,9 +623,10 @@ while True:
 
                         while True:
                             choose_detail = input(
-                                "1. Akhiri Pertemuan\n"
-                                "2. Kembali\n"
-                                "Pilih (1/2)>> "
+                                "1. Pertemuan Terealisasikan\n"
+                                "2. Pertemuan Tidak Terealisasikan\n"
+                                "3. Kembali\n"
+                                "Pilih (1/2/3)>> "
                             )
                             if choose_detail == "1":
                                 # pindahkan detail_item ke Riwayat (untuk user ini)
@@ -646,8 +665,34 @@ while True:
                                         removed = True
                                         break
 
+                                kreditscore_pengaju = None
+                                kreditscrore_remove = None
+                                for i in KreditScore:
+                                    i_kreditscore, i_akun = i
+                                    if i_akun == pengaju:
+                                        kreditscore_pengaju = i
+                                        kreditscrore_remove = i
+                                        break
+                                
+                                KreditScore.remove(kreditscrore_remove)
+                                kreditscore_pengaju = (int(kreditscore_pengaju[0]), kreditscore_pengaju[1])
+                                kreditscore_pengaju_baru = kreditscore_pengaju[0]
+                                if kreditscore_pengaju[0] <= 100:
+                                    tambah_kreditscore_pengaju = kreditscore_pengaju_baru + 5
+                                    if tambah_kreditscore_pengaju >= 100:
+                                        kreditscore_baru = kreditscore_pengaju_baru, pengaju
+                                        KreditScore.append(kreditscore_baru)
+                                        save_csv_kreditscore(tambah_kreditscore_pengaju, pengaju)
+                                    else:
+                                        kreditscore_baru = (tambah_kreditscore_pengaju, pengaju)
+                                        KreditScore.append(kreditscore_baru)
+                                        save_csv_kreditscore(tambah_kreditscore_pengaju, pengaju)
+                                
+
+
                                 # update file schedule
                                 rewrite_csv_schedule()
+                                rewrite_csv_kreditscore()
 
                                 print("Pertemuan berhasil dipindahkan ke riwayat.")
                                 input("Tekan Enter untuk kembali...")
@@ -655,6 +700,73 @@ while True:
                                 break
 
                             elif choose_detail == "2":
+                                # cari dan hapus schedule pasangan (jika ada), lalu masukkan juga ke riwayat
+                                pasangan = None
+                                for s in list(Schedule):  # copy list untuk aman
+                                    s_usr, s_hari, s_tanggal, s_bulan, s_tahun, s_jam_mulai, s_jam_selesai, s_pengaju = s
+                                    # pasangan adalah entri di mana pemilik adalah pengaju dan partner adalah usr
+                                    if (
+                                        s_usr == pengaju
+                                        and s_hari == hari
+                                        and s_tanggal == tanggal
+                                        and s_bulan == bulan
+                                        and s_tahun == tahun
+                                        and s_jam_mulai == jam_mulai
+                                        and s_jam_selesai == jam_selesai
+                                        and s_pengaju == usr
+                                    ):
+                                        pasangan = s
+                                        break
+
+                                if pasangan:
+                                    # hapus pasangan dari Schedule
+                                    Schedule.remove(pasangan)
+
+                                # hapus detail_item dari Schedule (pemilik yang saat ini mengakhiri)
+                                removed = False
+                                for s in list(Schedule):
+                                    if s == detail_item:
+                                        Schedule.remove(s)
+                                        removed = True
+                                        break
+
+                                kreditscore_pengaju = None
+                                kreditscrore_remove = None
+                                for i in KreditScore:
+                                    i_kreditscore, i_akun = i
+                                    if i_akun == pengaju:
+                                        kreditscore_pengaju = i
+                                        kreditscore_remove = i
+                                        break
+                                
+                                KreditScore.remove(kreditscore_remove)
+                                kreditscore_pengaju = (int(kreditscore_pengaju[0]), kreditscore_pengaju[1])
+                                kreditscore_pengaju_baru = kreditscore_pengaju[0]
+                                if kreditscore_pengaju[0] <= 100:
+                                    kurang_kreditscore_pengaju = kreditscore_pengaju_baru - 10
+                                    if kurang_kreditscore_pengaju <= 0:
+                                        kreditscore_nol = 0
+                                        kreditscore_baru = kreditscore_nol, pengaju
+                                        KreditScore.append(kreditscore_baru)
+                                        save_csv_kreditscore(kurang_kreditscore_pengaju, pengaju)
+                                    else:
+                                        kreditscore_baru = (kurang_kreditscore_pengaju, pengaju)
+                                        KreditScore.append(kreditscore_baru)
+                                        save_csv_kreditscore(kurang_kreditscore_pengaju, pengaju)
+                                
+
+
+                                # update file schedule
+                                rewrite_csv_schedule()
+                                rewrite_csv_kreditscore()
+
+                                print("Pertemuan diakhiri.")
+                                input("Tekan Enter untuk kembali...")
+                                cls()
+                                break
+
+
+                            elif choose_detail == "3":
                                 cls()
                                 break
 
