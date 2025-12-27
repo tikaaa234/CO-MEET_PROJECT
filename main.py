@@ -174,6 +174,14 @@ def Register():
             print("Harap isi data dengan benar! Silahkan isi kembali")
             cls()
             break
+        elif "@" not in email:
+            print("Format email belum benar! Silahkan isi kembali")
+            cls()
+            break
+        elif len(pass_signup) < 5:
+            print("Password minimal 5 karakter!")
+            cls()
+            break
         elif usrname_signup == pass_signup:
             print("Username tidak boleh sama dengan password! Silahkan isi kembali")
             cls()
