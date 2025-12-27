@@ -110,52 +110,51 @@ def input_jadwal():
     while True:
         os.system('cls')
 
-        salah = False
+        data = input("Hari & Tanggal (Senin 12/9/2025) (0 untuk kembali): ").strip()
+        if data == "0":
+            return None
 
-        data = input("Hari & Tanggal (Senin 12/9/2025): ").strip()
-        jam = input("Jam (08-10): ").strip()
+        jam = input("Jam (08-10) (0 untuk kembali): ").strip()
+        if jam == "0":
+            return None
 
-        if data == "" or jam == "":
-            salah = True
-
-        if not salah:
-            pisah = data.split()
-            if len(pisah) != 2:
-                salah = True
-
-        if not salah:
-            hari = pisah[0]
-            tanggal = pisah[1]
-
-            pisah_tgl = tanggal.split("/")
-            if len(pisah_tgl) != 3:
-                salah = True
-
-        if not salah:
-            tgl, bulan, tahun = pisah_tgl
-
-            pisah_jam = jam.split("-")
-            if len(pisah_jam) != 2:
-                salah = True
-
-        if not salah:
-            jam_mulai, jam_selesai = pisah_jam
-
-            if (
-                not hari.isalpha()
-                or not (tgl.isdigit() and bulan.isdigit() and tahun.isdigit())
-                or not (jam_mulai.isdigit() and jam_selesai.isdigit())
-                or not (1 <= int(tgl) <= 31 and 1 <= int(bulan) <= 12)
-                or not (0 <= int(jam_mulai) < int(jam_selesai) <= 24)
-            ):
-                salah = True
-
-        if salah:
-            print("Format belum benar. Tolong isi sesuai contoh.")
+        # ===== VALIDASI DASAR =====
+        pisah = data.split()
+        if len(pisah) != 2:
+            print("Format hari & tanggal salah.")
             cls()
             continue
 
-        return hari, tanggal, bulan, tahun, jam_mulai, jam_selesai
+        hari, tanggal = pisah
+        pisah_tgl = tanggal.split("/")
+        if len(pisah_tgl) != 3:
+            print("Format tanggal salah.")
+            cls()
+            continue
+
+        tgl, bulan, tahun = pisah_tgl
+
+        pisah_jam = jam.split("-")
+        if len(pisah_jam) != 2:
+            print("Format jam salah.")
+            cls()
+            continue
+
+        jam_mulai, jam_selesai = pisah_jam
+
+        if (
+            not hari.isalpha()
+            or not (tgl.isdigit() and bulan.isdigit() and tahun.isdigit())
+            or not (jam_mulai.isdigit() and jam_selesai.isdigit())
+            or not (1 <= int(tgl) <= 31 and 1 <= int(bulan) <= 12)
+            or not (0 <= int(jam_mulai) < int(jam_selesai) <= 24)
+        ):
+            print("Data tidak valid.")
+            cls()
+            continue
+
+        # ===== JIKA SEMUA BENAR =====
+        return hari, tgl, bulan, tahun, jam_mulai, jam_selesai
 
 # =====================================================
 
@@ -442,7 +441,7 @@ while True:
                         "3. Kembali\n"
                         "Pilih (1/2/3)>> "
                     )
-
+                
                     if choose_sub == "1":
                         cls()
                         for item in Schedule:
@@ -458,7 +457,16 @@ while True:
 
                     elif choose_sub == "2":
                         cls()
-                        hari, tanggal, bulan, tahun, jam_mulai, jam_selesai = input_jadwal()
+
+                        hasil = input_jadwal()
+                        if hasil is None:
+                            cls()
+                            continue  # balik ke menu:
+                                    # 1. Lihat Jadwal
+                                    # 2. Ajukan Jadwal
+                                    # 3. Kembali
+
+                        hari, tanggal, bulan, tahun, jam_mulai, jam_selesai = hasil
 
                         notif = (
                             search_usrname,
@@ -473,10 +481,6 @@ while True:
 
                         Notif.append(notif)
                         simpan_notif_csv(Notif)
-
-                        print("Pengajuan jadwal telah dikirim.")
-                        cls()
-
 
                         print("Pengajuan jadwal telah dikirim.")
                         cls()
@@ -601,8 +605,8 @@ while True:
                             cls()
                             continue
 
-                        pilih_detail = input("Masukkan nomor pertemuan yang ingin dilihat (atau 'k' untuk kembali): ")
-                        if pilih_detail.lower() == 'k':
+                        pilih_detail = input("Masukkan nomor pertemuan yang ingin dilihat (atau 0 untuk kembali): ")
+                        if pilih_detail == "0":
                             cls()
                             continue
 
@@ -807,6 +811,7 @@ while True:
                     pilih = input("\nPilih nomor notifikasi (0 untuk kembali)>> ")
 
                     if pilih == "0":
+                        cls()
                         break
 
                     if not pilih.isdigit():

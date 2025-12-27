@@ -1,9 +1,5 @@
-fatah,senin,10/10/25,10,25,8,10,iki
-Iqbal0306,Rabu,23/12/2025,12,2025,09,10,Pribadi
-jalpa,Selasa,20/12/2026,12,2026,07,10,ami
-ami,Selasa,20/12/2026,12,2026,07,10,jalpa
-iki,senin,10/11/2022,11,2022,10,11,Pribadi
-iki,Jumat,23/12/2025,12,2025,09,12,fatah
-fatah,Jumat,23/12/2025,12,2025,09,12,iki
-fatah,senin,15/12/2025,12,2025,09,12,iki
-iki,senin,15/12/2025,12,2025,09,12,fatah
+
+fatih,senin,10,10,2020,10,22,jalpa
+jalpa,senin,10,10,2020,10,22,fatih
+fatih,selasa,09/10/2025,10,2025,10,11,jalpa
+jalpa,selasa,09/10/2025,10,2025,10,11,fatih
