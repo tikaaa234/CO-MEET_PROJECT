@@ -444,6 +444,8 @@ while True:
                 
                     if choose_sub == "1":
                         cls()
+                        ada_jadwal = False
+
                         for item in Schedule:
                             usr, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, pengaju = item
                             if usr == search_usrname:
@@ -451,13 +453,17 @@ while True:
                                     f"{hari}, {tanggal}. "
                                     f"Jam: {jam_mulai}-{jam_selesai} (dengan {pengaju})"
                                 )
+                                ada_jadwal = True
+
+                        if not ada_jadwal:
+                            print("Tidak ada jadwal.")
 
                         input("Tekan Enter untuk kembali...")
                         cls()
 
+
                     elif choose_sub == "2":
                         cls()
-
                         hasil = input_jadwal()
                         if hasil is None:
                             cls()
@@ -806,6 +812,7 @@ while True:
                     if not daftar:
                         print("Tidak ada notifikasi.")
                         input("Tekan Enter untuk kembali...")
+                        cls()
                         break
 
                     pilih = input("\nPilih nomor notifikasi (0 untuk kembali)>> ")
