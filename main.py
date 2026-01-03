@@ -43,7 +43,7 @@ def load_csv_schedule():
     with open(CSV_SCHEDULE, "r", newline="") as file:
         reader = csv.reader(file)
         for row in reader:
-            if len(row) == 8:
+            if len(row) == 9:
                 Schedule.append(tuple(row))
 
 
@@ -67,7 +67,7 @@ def load_csv_riwayat():
     with open(CSV_RIWAYAT, "r", newline="") as file:
         reader = csv.reader(file)
         for row in reader:
-            if len(row) == 8:
+            if len(row) == 9:
                 Riwayat.append(tuple(row))
 
 
@@ -104,7 +104,7 @@ def load_csv_notif():
     with open (CSV_NOTIF, "r", newline="") as file:
         reader = csv.reader(file)
         for row in reader:
-            if len(row) == 8:
+            if len(row) == 9:
                 Notif.append(tuple(row))
 
 def input_jadwal():
@@ -117,6 +117,10 @@ def input_jadwal():
 
         jam = input("Jam (08-10) (0 untuk kembali): ").strip()
         if jam == "0":
+            return None
+
+        alasan = input("Alasan Pertemuan (0 untuk kembali): ").strip()
+        if alasan == "0":
             return None
 
         # ===== VALIDASI DASAR =====
@@ -149,13 +153,15 @@ def input_jadwal():
             or not (jam_mulai.isdigit() and jam_selesai.isdigit())
             or not (1 <= int(tgl) <= 31 and 1 <= int(bulan) <= 12)
             or not (0 <= int(jam_mulai) < int(jam_selesai) <= 24)
+            or alasan == ""
         ):
             print("Data tidak valid.")
             cls()
             continue
 
         # ===== JIKA SEMUA BENAR =====
-        return hari, tgl, bulan, tahun, jam_mulai, jam_selesai
+        return hari, tgl, bulan, tahun, jam_mulai, jam_selesai, alasan
+
 
 def password_bintang():
     print("Masukkan Password: ", end="", flush=True)
@@ -262,7 +268,7 @@ def tampilkan_notif_user(Notif, usrname_login):
     daftar = []
 
     for item in Notif:
-        usr, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, pengaju = item
+        usr, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, pengaju, alasan = item
         if usr == usrname_login:
             daftar.append(item)
 
@@ -273,10 +279,10 @@ def tampilkan_notif_user(Notif, usrname_login):
 
     print("\nDaftar notifikasi:")
     for i, item in enumerate(daftar, start=1):
-        _, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, pengaju = item
+        _, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, pengaju, alasan = item
         print(
-            f"{i}. {hari}, {tanggal}-{bulan}-{tahun} | "
-            f"Jam {jam_mulai}-{jam_selesai} | dari {pengaju}"
+            f"{no}. {hari}, {tanggal}-{bulan}-{tahun} | "
+            f"Jam {jam_mulai}-{jam_selesai} | Alasan: {alasan} | dari {pengaju}\n"
         )
 
     return daftar
@@ -287,11 +293,11 @@ def tampilkan_notifikasi(Notif, usrname_login):
     no = 1
 
     for item in Notif:
-        usr, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, pengaju = item
+        usr, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, pengaju, alasan = item
         if usr == usrname_login:
             print(
                 f"{no}. {hari}, {tanggal}-{bulan}-{tahun}| "
-                f"Jam {jam_mulai}-{jam_selesai} | dari {pengaju}"
+                f"Jam {jam_mulai}-{jam_selesai}| Alasan: {alasan} | dari {pengaju}"
             )
             daftar.append(item)
             no += 1
@@ -301,7 +307,7 @@ def tampilkan_notifikasi(Notif, usrname_login):
 def proses_notifikasi(index, daftar, Notif, Schedule):
     item = daftar[index]
 
-    usr, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, pengaju = item
+    usr, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, pengaju, alasan = item
 
     print("\n1. Terima\n2. Tolak\n3. Kembali")
     pilih = input("Pilih (1/2/3)>> ")
@@ -316,7 +322,8 @@ def proses_notifikasi(index, daftar, Notif, Schedule):
             tahun,
             jam_mulai,
             jam_selesai,
-            pengaju
+            pengaju,
+            alasan
         )
         Schedule.append(data_penerima)
         save_csv_schedule(data_penerima)
@@ -330,7 +337,8 @@ def proses_notifikasi(index, daftar, Notif, Schedule):
             tahun,
             jam_mulai,
             jam_selesai,
-            usr
+            usr,
+            alasan
         )
         Schedule.append(data_pengaju)
         save_csv_schedule(data_pengaju)
@@ -360,11 +368,11 @@ def tampilkan_list_jadwal(Jadwal, usrname_login):
     no = 1
 
     for item in Jadwal:
-        usr, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, pengaju = item
+        usr, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, pengaju, alasan = item
         if usr == usrname_login:
             print(
                 f"{no}. {hari}, {tanggal}-{bulan}-{tahun}| "
-                f"Jam {jam_mulai}-{jam_selesai} | oleh {pengaju}"
+                f"Jam {jam_mulai}-{jam_selesai} | alasan: {alasan} | oleh {pengaju}"
             )
             daftar.append(item)
             no += 1
@@ -471,11 +479,11 @@ while True:
                         ada_jadwal = False
 
                         for item in Schedule:
-                            usr, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, pengaju = item
+                            usr, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, pengaju, alasan = item
                             if usr == search_usrname:
                                 print(
                                     f"{hari}, {tanggal}-{bulan}-{tahun}. "
-                                    f"Jam: {jam_mulai}-{jam_selesai} (dengan {pengaju})"
+                                    f"Jam: {jam_mulai}-{jam_selesai}, alasan: {alasan} (dengan {pengaju})"
                                 )
                                 ada_jadwal = True
 
@@ -496,7 +504,7 @@ while True:
                                     # 2. Ajukan Jadwal
                                     # 3. Kembali
 
-                        hari, tanggal, bulan, tahun, jam_mulai, jam_selesai = hasil
+                        hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, alasan = hasil
 
                         notif = (
                             search_usrname,
@@ -506,7 +514,8 @@ while True:
                             tahun,
                             jam_mulai,
                             jam_selesai,
-                            usrname_login
+                            usrname_login,
+                            alasan
                         )
 
                         Notif.append(notif)
@@ -544,9 +553,9 @@ while True:
                             cls()
                             continue
 
-                        hari, tanggal, bulan, tahun, jam_mulai, jam_selesai = hasil
+                        hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, alasan = hasil
 
-                        data = (usrname_login, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, "Pribadi")
+                        data = (usrname_login, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, "Pribadi", alasan)
                         Schedule.append(data)
                         save_csv_schedule(data)
                         print("Jadwal berhasil ditambahkan.")
@@ -560,11 +569,11 @@ while True:
                             no = 1
 
                             for item in Schedule:
-                                usr, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, pengaju = item
+                                usr, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, pengaju, alasan = item
                                 if usr == usrname_login and pengaju == "Pribadi":
                                     print(
                                         f"{no}. {hari}, {tanggal}-{bulan}-{tahun}| "
-                                        f"Jam {jam_mulai}-{jam_selesai} | oleh {pengaju}"
+                                        f"Jam {jam_mulai}-{jam_selesai} | alasan: {alasan} | oleh {pengaju}"
                                     )
                                     daftar.append(item)
                                     no += 1
@@ -596,11 +605,11 @@ while True:
                         cls()
                         print("Jadwal Anda:")
                         for item in Schedule:
-                            usr, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, pengaju = item
+                            usr, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, pengaju, alasan = item
                             if usr == usrname_login and pengaju == "Pribadi":
                                 print(
                                     f"{hari}, {tanggal}-{bulan}-{tahun}. "
-                                    f"Jam: {jam_mulai}-{jam_selesai} (dengan {pengaju})"
+                                    f"Jam: {jam_mulai}-{jam_selesai} alasan: {alasan} (dengan {pengaju})"
                                 )
                         input("Tekan Enter untuk kembali...")
                         cls()
@@ -629,7 +638,7 @@ while True:
                         cls()
                         ada = False
                         for item in Schedule:
-                            usr, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, pengaju = item
+                            usr, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, pengaju, alasan = item
                             if usr == usrname_login:
                                 print(
                                     f"{hari}, {tanggal}-{bulan}-{tahun} "
@@ -647,12 +656,12 @@ while True:
                         user_jadwal = []
                         idx = 1
                         for item in Schedule:
-                            usr, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, pengaju = item
+                            usr, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, pengaju, alasan = item
                             if usr == usrname_login:
                                 user_jadwal.append(item)
                                 print(
                                     f"{idx}. {hari}, {tanggal}-{bulan}-{tahun} "
-                                    f"Jam {jam_mulai}-{jam_selesai} (dengan {pengaju})"
+                                    f"Jam {jam_mulai}-{jam_selesai}, alasan: {alasan} (dengan {pengaju})"
                                 )
                                 idx += 1
 
@@ -681,7 +690,7 @@ while True:
                             continue
 
                         detail_item = user_jadwal[nomor - 1]
-                        usr, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, pengaju = detail_item
+                        usr, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, pengaju, alasan = detail_item
 
                         print("=== DETAIL PERTEMUAN ===")
                         print(f"Partner : {pengaju}")
@@ -690,6 +699,7 @@ while True:
                         print(f"Bulan   : {bulan}")
                         print(f"Tahun   : {tahun}")
                         print(f"Jam     : {jam_mulai} - {jam_selesai}")
+                        print(f"Alasan  : {alasan}")
                    
 
                         while True:
@@ -708,7 +718,7 @@ while True:
                                     # cari dan hapus schedule pasangan (jika ada), lalu masukkan juga ke riwayat
                                     pasangan = None
                                     for s in list(Schedule):  # copy list untuk aman
-                                        s_usr, s_hari, s_tanggal, s_bulan, s_tahun, s_jam_mulai, s_jam_selesai, s_pengaju = s
+                                        s_usr, s_hari, s_tanggal, s_bulan, s_tahun, s_jam_mulai, s_jam_selesai, s_pengaju, s_alasan = s
                                         # pasangan adalah entri di mana pemilik adalah pengaju dan partner adalah usr
                                         if (
                                             s_usr == pengaju
@@ -719,6 +729,7 @@ while True:
                                             and s_jam_mulai == jam_mulai
                                             and s_jam_selesai == jam_selesai
                                             and s_pengaju == usr
+                                            and s_alasan == alasan
                                         ):
                                             pasangan = s
                                             break
@@ -789,7 +800,7 @@ while True:
                                     # cari dan hapus schedule pasangan (jika ada), lalu masukkan juga ke riwayat
                                     pasangan = None
                                     for s in list(Schedule):  # copy list untuk aman
-                                        s_usr, s_hari, s_tanggal, s_bulan, s_tahun, s_jam_mulai, s_jam_selesai, s_pengaju = s
+                                        s_usr, s_hari, s_tanggal, s_bulan, s_tahun, s_jam_mulai, s_jam_selesai, s_pengaju, s_alasan = s
                                         # pasangan adalah entri di mana pemilik adalah pengaju dan partner adalah usr
                                         if (
                                             s_usr == pengaju
@@ -800,6 +811,7 @@ while True:
                                             and s_jam_mulai == jam_mulai
                                             and s_jam_selesai == jam_selesai
                                             and s_pengaju == usr
+                                            and s_alasan == alasan
                                         ):
                                             pasangan = s
                                             break
@@ -918,11 +930,11 @@ while True:
                 ada = False
 
                 for item in Riwayat:
-                    usr, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, pengaju = item
+                    usr, hari, tanggal, bulan, tahun, jam_mulai, jam_selesai, pengaju, alasan = item
                     if usr == usrname_login:
                         print(
                             f"{hari}, {tanggal}-{bulan}-{tahun} "
-                            f"Jam {jam_mulai}-{jam_selesai} (dengan {pengaju})"
+                            f"Jam {jam_mulai}-{jam_selesai}, alasan: {alasan} (dengan {pengaju})"
                         )
                         ada = True
 
