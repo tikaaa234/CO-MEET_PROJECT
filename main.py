@@ -3,6 +3,7 @@
 import os
 import time
 import csv
+import msvcrt
 
 KreditScore = []
 Schedule = []
@@ -156,6 +157,22 @@ def input_jadwal():
         # ===== JIKA SEMUA BENAR =====
         return hari, tgl, bulan, tahun, jam_mulai, jam_selesai
 
+def password_bintang():
+    print("Masukkan Password: ", end="", flush=True)
+    password = ""
+    while True:
+        chara = msvcrt.getch()
+        if chara == b'\r':
+            break
+        elif chara == b'\x08':
+            if password:
+                password = password[:-1]
+                print("\b \b", end="", flush=True)
+        else: 
+            password += chara.decode()
+            print("*", end="", flush=True)
+    return password
+
 # =====================================================
 
 
@@ -168,21 +185,25 @@ def Register():
     while True: 
         email = input("Masukkan Email: ").strip()
         usrname_signup = input("Masukkan Username: ").strip()
-        pass_signup = input("Masukkan Password: ").strip()
+        pass_signup = password_bintang()
         if email == "" or usrname_signup == "" or pass_signup == "":
-            print("Harap isi data dengan benar! Silahkan isi kembali")
+            print("\nHarap isi data dengan benar! Silahkan isi kembali")
+            input("Tekan Enter untuk kembali...")
             cls()
             break
         elif "@" not in email:
-            print("Format email belum benar! Silahkan isi kembali")
+            print("\nFormat email belum benar! Silahkan isi kembali")
+            input("Tekan Enter untuk kembali...")
             cls()
             break
         elif len(pass_signup) < 5:
-            print("Password minimal 5 karakter!")
+            print("\nPassword minimal 5 karakter!")
+            input("Tekan Enter untuk kembali...")
             cls()
             break
         elif usrname_signup == pass_signup:
-            print("Username tidak boleh sama dengan password! Silahkan isi kembali")
+            print("\nUsername tidak boleh sama dengan password! Silahkan isi kembali")
+            input("Tekan Enter untuk kembali...")
             cls()
             break
         
@@ -198,12 +219,14 @@ def Register():
                 break
         
         if email_terpakai:
-            print("Email sudah terpakai! Silahkan isi kembali")
+            print("\nEmail sudah terpakai! Silahkan isi kembali")
+            input("Tekan Enter untuk kembali...")
             cls()
             break
 
         elif username_signup_terpakai:
-            print("Username sudah terpakai! Silahkan isi kembali")
+            print("\nUsername sudah terpakai! Silahkan isi kembali")
+            input("Tekan Enter untuk kembali...")
             cls()
             break
 
@@ -217,21 +240,22 @@ def Register():
         KreditScore.append(kreditscore_sv)
         save_csv_kreditscore(first_kreditscore, usrname_signup)
 
-        print("Registrasi berhasil! Akun telah tersimpan permanen.")
+        print("\nRegistrasi berhasil! Akun telah tersimpan permanen.")
+        input("Tekan Enter untuk kembali...")
         cls()
         break
 
 
 def Login():
     usrname_login = input("Masukkan Username: ")
-    pass_login = input("Masukkan Password: ")
+    pass_login = password_bintang()
     for usr, pw, gmail in Akun:
         if usr == usrname_login and pw == pass_login:
-            print("Login berhasil.")
+            print("\nLogin berhasil.")
             cls()
             return usrname_login
     
-    print("Login gagal. Username atau password salah.")
+    print("\nLogin gagal. Username atau password salah.")
     return None
 
 def tampilkan_notif_user(Notif, usrname_login):
